@@ -1,0 +1,77 @@
+openapi: 3.0.3
+info:
+  title: NeoGrid API
+  version: 1.0.0
+  description: API specification for NOVA Energy powered by NeoGrid.
+servers:
+  - url: /api/v1/neogrid
+paths:
+  /sites:
+    get:
+      summary: List energy sites
+      responses:
+        '200':
+          description: Energy site list
+  /energy-assets:
+    get:
+      summary: List energy assets
+      responses:
+        '200':
+          description: Energy asset list
+    post:
+      summary: Create energy asset
+      responses:
+        '201':
+          description: Energy asset created
+  /solar/production:
+    get:
+      summary: Query solar production measurements
+      responses:
+        '200':
+          description: Solar production time series
+    post:
+      summary: Ingest solar production measurement
+      responses:
+        '202':
+          description: Solar production accepted
+  /batteries/telemetry:
+    get:
+      summary: Query battery telemetry
+      responses:
+        '200':
+          description: Battery telemetry
+    post:
+      summary: Ingest battery telemetry
+      responses:
+        '202':
+          description: Battery telemetry accepted
+  /grid/flow:
+    get:
+      summary: Query grid import/export flow
+      responses:
+        '200':
+          description: Grid flow measurements
+  /forecasts/run:
+    post:
+      summary: Run energy forecast engine
+      responses:
+        '202':
+          description: Forecast run started
+  /optimization/run:
+    post:
+      summary: Run energy optimization
+      responses:
+        '202':
+          description: Optimization started
+  /carbon:
+    get:
+      summary: Get carbon metrics
+      responses:
+        '200':
+          description: Carbon metrics
+  /recommendations/run:
+    post:
+      summary: Generate energy recommendations
+      responses:
+        '202':
+          description: Recommendation generation started
