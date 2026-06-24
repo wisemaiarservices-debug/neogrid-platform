@@ -1,0 +1,76 @@
+name: NeoGrid CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  api-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        working-directory: service
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+      - name: Run tests
+        working-directory: service
+        run: pytest
+
+  api-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r service/requirements.txt
+      - name: Start API
+        working-directory: service
+        run: |
+          python -m uvicorn main:app --host 127.0.0.1 --port 8200 > api.log 2>&1 &
+          echo $! > api.pid
+      - name: Wait for health
+        run: |
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:8200/health; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat service/api.log
+          exit 1
+      - name: Verify summary
+        run: |
+          python - <<'PY'
+          import json
+          from urllib.request import urlopen
+          def get_json(path):
+              with urlopen(f"http://127.0.0.1:8200{path}", timeout=10) as response:
+                  assert response.status == 200
+                  return json.loads(response.read().decode("utf-8"))
+          health = get_json("/health")
+          assert health["status"] == "ok"
+          assert health["service"] == "neogrid-api"
+          summary = get_json("/api/v1/dashboard/summary")
+          assert summary["scenario"] == "SolarHub energy optimization"
+          assert len(summary["kpis"]) >= 6
+          assert len(summary["recommendations"]) >= 1
+          print("NeoGrid smoke passed")
+          PY
+      - name: Stop API
+        if: always()
+        run: |
+          if [ -f service/api.pid ]; then
+            kill "$(cat service/api.pid)" || true
+          fi
+          cat service/api.log || true
