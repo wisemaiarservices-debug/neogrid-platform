@@ -1,4 +1,6 @@
-from service.main import EnergyState, forecast_energy, optimize_energy, recommend_energy
+from fastapi.middleware.cors import CORSMiddleware
+
+from service.main import ALLOWED_DEV_ORIGINS, EnergyState, app, forecast_energy, optimize_energy, recommend_energy
 
 
 def test_forecast_heat_derate():
@@ -18,3 +20,10 @@ def test_recommendation_operator_review():
     assert "battery" in rec.title.lower()
     assert rec.status == "operator_review"
     assert rec.confidence > 0.5
+
+
+def test_cors_allows_neogrid_web_dev_origin():
+    cors_middleware = [middleware for middleware in app.user_middleware if middleware.cls is CORSMiddleware]
+    assert cors_middleware
+    assert "http://localhost:8504" in ALLOWED_DEV_ORIGINS
+    assert "http://localhost:8504" in cors_middleware[0].kwargs["allow_origins"]
