@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 
@@ -28,7 +29,20 @@ class EnergyRecommendation(BaseModel):
     status: str = "operator_review"
 
 
+ALLOWED_DEV_ORIGINS = [
+    "http://localhost:8400",
+    "http://localhost:8504",
+    "http://127.0.0.1:8504",
+]
+
 app = FastAPI(title="NeoGrid API", version="0.1.0")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ALLOWED_DEV_ORIGINS,
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Accept", "Content-Type"],
+)
 
 
 def now_iso() -> str:
