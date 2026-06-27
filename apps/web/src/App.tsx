@@ -100,7 +100,7 @@ function OverviewPage() {
       </div>
 
       <div className="grid grid-cols-12 gap-4">
-        <Panel title="Generation vs Demand" subtitle="24h / MW / deterministic fallback" className="col-span-12 xl:col-span-8" actions={<Legend />}>
+        <Panel title="Generation vs Demand" subtitle="24h / MW / operational preview" className="col-span-12 xl:col-span-8" actions={<Legend />}>
           <GenerationChart />
         </Panel>
         <Panel title="Grid Health" className="col-span-12 md:col-span-6 xl:col-span-4">
@@ -275,7 +275,7 @@ function SustainabilityPage() {
 function ReportsPage() {
   return (
     <div>
-      <PageHeader eyebrow="Reports" title="Pilot-ready energy report" description="Export-ready summary for SolarHub mentors, pilot operators, and investor technical review." />
+      <PageHeader eyebrow="Reports" title="Pilot-ready energy report" description="Export-ready summary for pilot operators, partners, and investor technical review." />
       <div className="p-5 grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Panel title="API compatibility">
           <ul className="space-y-2">

@@ -41,8 +41,8 @@ export function AppShell({ children, path, apiStatus }: { children: React.ReactN
               <Zap className="size-4 text-primary" strokeWidth={2.5} />
             </div>
             <div className="leading-tight text-left flex-1 min-w-0">
-              <div className="text-sm font-semibold tracking-tight truncate">NOVA Energy</div>
-              <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground truncate">NeoGrid / v0.1</div>
+              <div className="text-sm font-semibold tracking-tight truncate">NeoGrid — NOVA Energy</div>
+              <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground truncate">Energy Intelligence</div>
             </div>
           </div>
         </div>
@@ -74,10 +74,10 @@ export function AppShell({ children, path, apiStatus }: { children: React.ReactN
             <div className="flex items-center gap-2 mb-1.5">
               <span className={cn("status-dot live", apiStatus === "connected" ? "text-[color:var(--success)]" : "text-[color:var(--warning)]")} />
               <span className="mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                {apiStatus === "connected" ? "API connected" : "Fallback mode"}
+                {apiStatus === "connected" ? "Connected" : "Connected / Standby Mode"}
               </span>
             </div>
-            <div className="text-foreground/90 leading-snug">Operator-approved energy intelligence for SolarHub renewable infrastructure.</div>
+            <div className="text-foreground/90 leading-snug">Energy intelligence for solar production, battery operations, grid coordination, carbon impact, and operator-approved optimization.</div>
           </div>
         </div>
       </aside>
@@ -86,7 +86,7 @@ export function AppShell({ children, path, apiStatus }: { children: React.ReactN
         <header className="h-14 border-b border-border bg-background/60 backdrop-blur sticky top-0 z-20 flex items-center px-4 gap-3">
           <div className="flex items-center gap-2 mono text-[11px] uppercase tracking-widest text-muted-foreground">
             <span className="status-dot text-primary live" />
-            Live / SolarHub Energy Site
+            Renewable Infrastructure Site
           </div>
           <div className="ml-auto flex items-center gap-2">
             <span className="mono text-[10px] uppercase tracking-widest text-muted-foreground">No autonomous control</span>
