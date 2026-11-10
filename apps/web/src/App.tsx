@@ -501,21 +501,16 @@ function AssetsTable({ className = "" }: { className?: string }) {
 
 function SustainabilitySummary({ className = "" }: { className?: string }) {
   return (
-    <Panel title="Sustainability / Today" className={className}>
+    <Panel title="Sustainability accounting · demo" className={className}>
       <div className="grid grid-cols-3 gap-4">
-        <div className="flex flex-col items-start gap-1"><Leaf className="size-4 text-[color:var(--success)]" /><Metric label="CO2 Avoided" value="1,284" unit="tonnes" tone="success" /></div>
-        <div className="flex flex-col items-start gap-1"><Sun className="size-4 text-[color:var(--warning)]" /><Metric label="Renewable" value="88" unit="%" tone="success" /></div>
-        <div className="flex flex-col items-start gap-1"><Wind className="size-4 text-[color:var(--info)]" /><Metric label="Efficiency" value="94.2" unit="%" /></div>
+        <div className="flex flex-col items-start gap-1"><Leaf className="size-4 text-muted-foreground" /><Metric label="CO2 impact" value="—" unit="kg CO2e" /></div>
+        <div className="flex flex-col items-start gap-1"><Sun className="size-4 text-muted-foreground" /><Metric label="Renewable share" value="—" unit="%" /></div>
+        <div className="flex flex-col items-start gap-1"><Wind className="size-4 text-muted-foreground" /><Metric label="Efficiency" value="—" unit="%" /></div>
       </div>
-      <div className="mt-4 pt-4 border-t border-border">
-        <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Renewable share / 7d</div>
-        <Sparkline data={[82, 85, 81, 87, 89, 90, 88]} color="var(--success)" height={48} />
-        <div className="flex justify-between mono text-[10px] text-muted-foreground mt-1"><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span></div>
-      </div>
+      <div className="mt-4 pt-4 border-t border-border text-xs leading-5 text-muted-foreground">No verified meter baseline, reporting period or grid emissions factor is connected. Carbon and savings outcomes are not calculated.</div>
     </Panel>
   );
 }
-
 function SubstationRoster() {
   return (
     <Panel title="Substation Roster" padded={false}>
