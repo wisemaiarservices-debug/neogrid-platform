@@ -7,22 +7,22 @@ type Asset = {
   x: number;
   y: number;
   label: string;
-  status: "online" | "warning" | "offline";
-  mw: number;
+  status: "unverified";
+  mw: string;
 };
 
 const ASSETS: Asset[] = [
-  { id: "SF-01", type: "solar", x: 18, y: 32, label: "Mojave Solar A", status: "online", mw: 248 },
-  { id: "SF-02", type: "solar", x: 32, y: 58, label: "Topaz Field", status: "online", mw: 312 },
-  { id: "SF-03", type: "solar", x: 64, y: 22, label: "Ivanpah West", status: "warning", mw: 184 },
-  { id: "BS-01", type: "battery", x: 42, y: 40, label: "Moss Landing", status: "online", mw: 730 },
-  { id: "BS-02", type: "battery", x: 70, y: 65, label: "Crimson Storage", status: "online", mw: 350 },
-  { id: "BS-03", type: "battery", x: 22, y: 72, label: "Gateway BESS", status: "warning", mw: 230 },
-  { id: "SS-01", type: "substation", x: 50, y: 50, label: "Cascade Hub", status: "online", mw: 1200 },
-  { id: "SS-02", type: "substation", x: 80, y: 38, label: "Pinecrest 500kV", status: "online", mw: 980 },
-  { id: "SS-03", type: "substation", x: 12, y: 18, label: "Olympic Tie", status: "online", mw: 640 },
-  { id: "WF-01", type: "wind", x: 86, y: 78, label: "Altamont Pass", status: "online", mw: 168 },
-  { id: "WF-02", type: "wind", x: 8, y: 84, label: "Tehachapi Ridge", status: "offline", mw: 0 },
+  { id: "DEMO-SF-01", type: "solar", x: 18, y: 32, label: "Demo Solar Array A", status: "unverified", mw: "Not supplied" },
+  { id: "DEMO-SF-02", type: "solar", x: 32, y: 58, label: "Demo Solar Array B", status: "unverified", mw: "Not supplied" },
+  { id: "DEMO-SF-03", type: "solar", x: 64, y: 22, label: "Demo Solar Array C", status: "unverified", mw: "Not supplied" },
+  { id: "DEMO-BS-01", type: "battery", x: 42, y: 40, label: "Demo Battery A", status: "unverified", mw: "Not supplied" },
+  { id: "DEMO-BS-02", type: "battery", x: 70, y: 65, label: "Demo Battery B", status: "unverified", mw: "Not supplied" },
+  { id: "DEMO-BS-03", type: "battery", x: 22, y: 72, label: "Demo Battery C", status: "unverified", mw: "Not supplied" },
+  { id: "DEMO-SS-01", type: "substation", x: 50, y: 50, label: "Demo Substation A", status: "unverified", mw: "Not supplied" },
+  { id: "DEMO-SS-02", type: "substation", x: 80, y: 38, label: "Demo Substation B", status: "unverified", mw: "Not supplied" },
+  { id: "DEMO-SS-03", type: "substation", x: 12, y: 18, label: "Demo Substation C", status: "unverified", mw: "Not supplied" },
+  { id: "DEMO-WF-01", type: "wind", x: 86, y: 78, label: "Demo Wind Site A", status: "unverified", mw: "Not supplied" },
+  { id: "DEMO-WF-02", type: "wind", x: 8, y: 84, label: "Demo Wind Site B", status: "unverified", mw: "Not supplied" },
 ];
 
 const COLORS = {
@@ -52,7 +52,7 @@ export function GridMap({ height = 420 }: { height?: number }) {
             {key}
           </button>
         ))}
-        <div className="ml-auto mono text-[10px] uppercase tracking-widest text-muted-foreground">GIS / WGS84 / NA-West</div>
+        <div className="ml-auto mono text-[10px] uppercase tracking-widest text-muted-foreground">CONCEPTUAL / NOT GEOSPATIAL</div>
       </div>
 
       <div className="relative grid-bg rounded-sm border border-border overflow-hidden bg-[color:var(--panel)]" style={{ height }}>
@@ -77,7 +77,7 @@ export function GridMap({ height = 420 }: { height?: number }) {
             style={{ left: `${asset.x}%`, top: `${asset.y}%` }}
           >
             <span
-              className={cn("block rounded-full transition-transform group-hover:scale-150", asset.status === "offline" && "opacity-50")}
+              className={cn("block rounded-full transition-transform group-hover:scale-150", asset.status === "unverified" && "opacity-70")}
               style={{
                 width: asset.type === "substation" ? 12 : 8,
                 height: asset.type === "substation" ? 12 : 8,
@@ -85,7 +85,7 @@ export function GridMap({ height = 420 }: { height?: number }) {
                 boxShadow: `0 0 12px ${COLORS[asset.type]}`,
               }}
             />
-            {asset.status === "online" && <span className="absolute inset-0 rounded-full animate-ping" style={{ background: COLORS[asset.type], opacity: 0.4 }} />}
+            
           </button>
         ))}
 
@@ -93,13 +93,12 @@ export function GridMap({ height = 420 }: { height?: number }) {
           <div className="absolute panel-elevated p-2.5 text-xs pointer-events-none z-10 min-w-[160px]" style={{ left: `${hover.x}%`, top: `${hover.y}%`, transform: "translate(12px, -50%)" }}>
             <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground">{hover.id} / {hover.type}</div>
             <div className="font-medium mt-0.5">{hover.label}</div>
-            <div className="mono mt-1 text-foreground/80">{hover.mw.toLocaleString()} MW / {hover.status}</div>
+            <div className="mono mt-1 text-foreground/80">Capacity: {hover.mw} / {hover.status}</div>
           </div>
         )}
 
         <div className="absolute bottom-3 left-3 mono text-[10px] text-muted-foreground flex items-center gap-2">
-          <div className="h-px w-10 bg-foreground/40" />
-          50 km
+          Schematic only · no site coordinates
         </div>
       </div>
     </div>
