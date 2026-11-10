@@ -150,12 +150,12 @@ function GridPage() {
       <PageHeader eyebrow="DEMO SCADA / SAMPLE SERIES" title="Grid Operations" description="Illustrative frequency and flow examples only. No live SCADA, transmission or substation telemetry is connected." />
       <div className="p-5 space-y-4">
         <div className="grid grid-cols-2 md:grid-cols-6 gap-px bg-border rounded-sm overflow-hidden">
-          <div className="bg-background p-4"><Metric label="Frequency" value="60.02" unit="Hz" tone="success" /></div>
-          <div className="bg-background p-4"><Metric label="Voltage" value="500.3" unit="kV" tone="success" /></div>
-          <div className="bg-background p-4"><Metric label="Net Flow" value="+182" unit="MW" tone="info" /></div>
-          <div className="bg-background p-4"><Metric label="Losses" value="2.8" unit="%" /></div>
-          <div className="bg-background p-4"><Metric label="Reserves" value="640" unit="MW" tone="success" /></div>
-          <div className="bg-background p-4"><Metric label="Open Faults" value="2" tone="warning" /></div>
+          <div className="bg-background p-4"><Metric label="Frequency" value="—" unit="Hz" tone="success" /></div>
+          <div className="bg-background p-4"><Metric label="Voltage" value="—" unit="kV" tone="success" /></div>
+          <div className="bg-background p-4"><Metric label="Net Flow" value="—" unit="MW" tone="info" /></div>
+          <div className="bg-background p-4"><Metric label="Losses" value="—" unit="%" /></div>
+          <div className="bg-background p-4"><Metric label="Reserves" value="—" unit="MW" tone="success" /></div>
+          <div className="bg-background p-4"><Metric label="Open Faults" value="—" tone="warning" /></div>
         </div>
         <div className="grid grid-cols-12 gap-4">
           <Panel title="Illustrative Topology" subtitle="Conceptual GIS-style sample · not a live network" className="col-span-12 xl:col-span-8">
@@ -330,38 +330,17 @@ function Legend() {
 
 function GridHealth() {
   return (
-    <>
-      <div className="flex items-center gap-5">
-        <HealthRing score={98.4} />
-        <div className="flex-1 space-y-2.5">
-          {[
-            ["Generation", 99, "success"],
-            ["Transmission", 97, "success"],
-            ["Distribution", 96, "success"],
-            ["Storage", 94, "warning"],
-            ["Cyber posture", 99, "success"],
-          ].map(([label, value, tone]) => (
-            <div key={label as string} className="text-xs">
-              <div className="flex justify-between mb-1">
-                <span className="text-muted-foreground">{label}</span>
-                <span className="mono tabular-nums">{value}%</span>
-              </div>
-              <div className="h-1 bg-border/60 rounded-full overflow-hidden">
-                <div className="h-full rounded-full" style={{ width: `${value}%`, background: tone === "warning" ? "var(--warning)" : "var(--success)" }} />
-              </div>
-            </div>
-          ))}
+    <div className="space-y-3">
+      {["Generation telemetry", "Transmission measurements", "Distribution meters", "Battery BMS", "Cybersecurity monitoring"].map((label) => (
+        <div key={label} className="flex items-center justify-between border-b border-border py-2 text-xs last:border-0">
+          <span className="text-muted-foreground">{label}</span>
+          <StatusPill status="info" label="Not connected" />
         </div>
-      </div>
-      <div className="mt-4 pt-4 border-t border-border grid grid-cols-3 gap-3 text-center">
-        <div><div className="mono text-lg tabular-nums text-[color:var(--success)]">1,238</div><div className="mono text-[10px] uppercase tracking-widest text-muted-foreground">Online</div></div>
-        <div><div className="mono text-lg tabular-nums text-[color:var(--warning)]">38</div><div className="mono text-[10px] uppercase tracking-widest text-muted-foreground">Degraded</div></div>
-        <div><div className="mono text-lg tabular-nums text-[color:var(--danger)]">8</div><div className="mono text-[10px] uppercase tracking-widest text-muted-foreground">Offline</div></div>
-      </div>
-    </>
+      ))}
+      <div className="pt-2 text-[10px] leading-5 text-muted-foreground">Grid health scores and asset counts are withheld until verified device inventory, timestamps and telemetry are available.</div>
+    </div>
   );
 }
-
 function HealthRing({ score }: { score: number }) {
   const radius = 42;
   const circumference = 2 * Math.PI * radius;
