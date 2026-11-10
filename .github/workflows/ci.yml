@@ -62,9 +62,12 @@ jobs:
           assert health["status"] == "ok"
           assert health["service"] == "neogrid-api"
           summary = get_json("/api/v1/dashboard/summary")
-          assert summary["scenario"] == "SolarHub energy optimization"
-          assert len(summary["kpis"]) >= 6
+          assert summary["scenario"] == "NeoGrid input screening · demonstration"
+          assert len(summary["kpis"]) >= 5
           assert len(summary["recommendations"]) >= 1
+          assert summary["input_provenance"]["data_mode"] == "synthetic_defaults"
+          assert summary["forecast"]["forecast"] is None
+          assert summary["optimization"]["status"] == "not_estimable_from_available_inputs"
           print("NeoGrid smoke passed")
           PY
       - name: Stop API
