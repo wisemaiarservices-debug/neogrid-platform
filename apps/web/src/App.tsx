@@ -100,7 +100,7 @@ function OverviewPage() {
       </div>
 
       <div className="grid grid-cols-12 gap-4">
-        <Panel title="Generation vs Demand" subtitle="24h / MW / deterministic fallback" className="col-span-12 xl:col-span-8" actions={<Legend />}>
+        <Panel title="Generation vs Demand" subtitle="Illustrative sample series · not operational data" className="col-span-12 xl:col-span-8" actions={<Legend />}>
           <GenerationChart />
         </Panel>
         <Panel title="Grid Health" className="col-span-12 md:col-span-6 xl:col-span-4">
@@ -147,7 +147,7 @@ function GridPage() {
   const frequency = Array.from({ length: 60 }, (_, i) => ({ t: i, hz: 60 + (Math.sin(i / 3) + Math.sin(i / 7)) * 0.04 }));
   return (
     <div>
-      <PageHeader eyebrow="SCADA / 5s polling" title="Grid Operations" description="Live frequency, transmission flows, and substation telemetry." />
+      <PageHeader eyebrow="DEMO SCADA / SAMPLE SERIES" title="Grid Operations" description="Illustrative frequency and flow examples only. No live SCADA, transmission or substation telemetry is connected." />
       <div className="p-5 space-y-4">
         <div className="grid grid-cols-2 md:grid-cols-6 gap-px bg-border rounded-sm overflow-hidden">
           <div className="bg-background p-4"><Metric label="Frequency" value="60.02" unit="Hz" tone="success" /></div>
@@ -158,7 +158,7 @@ function GridPage() {
           <div className="bg-background p-4"><Metric label="Open Faults" value="2" tone="warning" /></div>
         </div>
         <div className="grid grid-cols-12 gap-4">
-          <Panel title="Live Topology" subtitle="GIS / transmission overlay" className="col-span-12 xl:col-span-8">
+          <Panel title="Illustrative Topology" subtitle="Conceptual GIS-style sample · not a live network" className="col-span-12 xl:col-span-8">
             <GridMap height={460} />
           </Panel>
           <div className="col-span-12 xl:col-span-4 space-y-4">
@@ -206,7 +206,7 @@ function BatteriesPage() {
 function ForecastsPage() {
   return (
     <div>
-      <PageHeader eyebrow="Forecast engine" title="Demand and renewable forecasts" description="Forecasts align solar production, irrigation load, battery reserve, and grid import risk." />
+      <PageHeader eyebrow="Forecast engine" title="Demand and renewable forecasts" description="Forecast generation is disabled until validated time-series, weather, equipment and tariff data are connected." />
       <div className="p-5 space-y-4">
         <ForecastPanel wide />
         <Panel title="Forecast windows" padded={false}>
@@ -264,7 +264,7 @@ function RecommendationsPage() {
 function SustainabilityPage() {
   return (
     <div>
-      <PageHeader eyebrow="Carbon analytics" title="Sustainability and carbon impact" description="Measured renewable share, grid import reduction, carbon reduction, and energy efficiency." />
+      <PageHeader eyebrow="Carbon analytics" title="Sustainability and carbon impact" description="Impact reporting is withheld until metered baselines, reporting periods and verified grid factors are available." />
       <div className="p-5">
         <SustainabilitySummary />
       </div>
@@ -275,7 +275,7 @@ function SustainabilityPage() {
 function ReportsPage() {
   return (
     <div>
-      <PageHeader eyebrow="Reports" title="Pilot-ready energy report" description="Export-ready summary for SolarHub mentors, pilot operators, and investor technical review." />
+      <PageHeader eyebrow="Reports" title="Pilot-ready energy report" description="Demonstration report only. No measured energy, carbon, savings or dispatch outcomes are available." />
       <div className="p-5 grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Panel title="API compatibility">
           <ul className="space-y-2">
@@ -287,7 +287,7 @@ function ReportsPage() {
             ))}
           </ul>
         </Panel>
-        <Panel title="Expected impact">
+        <Panel title="Impact accounting · not calculated">
           <div className="grid grid-cols-2 gap-3">
             <Metric label="Grid import reduction" value={impact.gridImportReductionKwh} unit="kWh" tone="success" />
             <Metric label="Carbon reduction" value={impact.carbonReductionKg} unit="kg CO2e" tone="success" />
@@ -420,7 +420,7 @@ function BatteryIntelligence() {
 
 function ForecastPanel({ wide = false }: { wide?: boolean }) {
   return (
-    <Panel title="Demand Forecasting" subtitle="ensemble / weather + load + storage" className={wide ? "" : "col-span-12 xl:col-span-5"} actions={<span className="mono text-[10px] uppercase tracking-widest text-primary">24h</span>}>
+    <Panel title="Demand Forecasting" subtitle="Forecast method not validated · sample chart only" className={wide ? "" : "col-span-12 xl:col-span-5"} actions={<span className="mono text-[10px] uppercase tracking-widest text-primary">24h</span>}>
       <div className="h-56">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={hourlyEnergy} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
@@ -435,8 +435,8 @@ function ForecastPanel({ wide = false }: { wide?: boolean }) {
         </ResponsiveContainer>
       </div>
       <div className="mt-2 flex items-center justify-between text-xs">
-        <span className="text-muted-foreground">Peak forecast</span>
-        <span className="mono tabular-nums">18:00 / 762 MW / +/-3.2%</span>
+        <span className="text-muted-foreground">Forecast status</span>
+        <span className="mono tabular-nums">Not generated</span>
       </div>
     </Panel>
   );
@@ -445,13 +445,13 @@ function ForecastPanel({ wide = false }: { wide?: boolean }) {
 function RecommendationQueue({ compact = false }: { compact?: boolean }) {
   const items = compact ? recommendations.slice(0, 4) : recommendations;
   return (
-    <Panel title="NOVA Recommendations" subtitle="AI / operator review" className={compact ? "col-span-12 md:col-span-6 xl:col-span-4" : ""} actions={<Cpu className="size-3.5 text-primary" />}>
+    <Panel title="NOVA Review Checklist" subtitle="Rule-based data readiness · no dispatch recommendations" className={compact ? "col-span-12 md:col-span-6 xl:col-span-4" : ""} actions={<Cpu className="size-3.5 text-primary" />}>
       <ul className="divide-y divide-border -my-2">
         {items.map((rec) => (
           <li key={rec.id} className="py-2.5 first:pt-0 last:pb-0 hover:bg-panel-elevated/40 -mx-2 px-2 rounded-sm transition">
             <div className="flex items-center justify-between mb-1">
               <span className="mono text-[10px] uppercase tracking-widest text-primary">{rec.tag}</span>
-              <span className="mono text-[10px] text-muted-foreground tabular-nums">{rec.confidence}% conf</span>
+              <span className="mono text-[10px] text-muted-foreground tabular-nums">Not calibrated</span>
             </div>
             <div className="flex items-center justify-between gap-3">
               <span className="text-sm">{rec.title}</span>
@@ -462,9 +462,7 @@ function RecommendationQueue({ compact = false }: { compact?: boolean }) {
           </li>
         ))}
       </ul>
-      <button className="mt-3 w-full mono text-[10px] uppercase tracking-widest text-primary border border-primary/40 hover:bg-primary/10 transition rounded-sm py-2 flex items-center justify-center gap-1.5">
-        Awaiting operator approval <ArrowRight className="size-3" />
-      </button>
+      <div className="mt-3 border-t border-border pt-2 text-[10px] text-muted-foreground">No dispatch action generated. Operator review required before any future recommendation.</div>
     </Panel>
   );
 }
