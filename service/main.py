@@ -1,41 +1,50 @@
 from __future__ import annotations
 
+import os
 from datetime import datetime, timezone
 from typing import Any
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class EnergyState(BaseModel):
-    site_id: str = "site-solarhub-agro-001"
-    solar_kw: float = 42.6
-    battery_soc_pct: float = 67
-    load_kw: float = 31.4
-    grid_import_kw: float = 4.8
-    carbon_intensity_gco2_kwh: float = 410
-    irrigation_load_kw: float = 9.5
-    temperature_c: float = 39
+    """Input contract; defaults are synthetic demo values, never telemetry."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    site_id: str = "demo-site-neogrid-001"
+    solar_kw: float = Field(default=42.6, ge=0)
+    battery_soc_pct: float = Field(default=67, ge=0, le=100)
+    load_kw: float = Field(default=31.4, ge=0)
+    grid_import_kw: float = Field(default=4.8, ge=0)
+    carbon_intensity_gco2_kwh: float = Field(default=410, ge=0)
+    irrigation_load_kw: float = Field(default=9.5, ge=0)
+    temperature_c: float = Field(default=39, ge=-80, le=65)
 
 
 class EnergyRecommendation(BaseModel):
     id: str
     title: str
     priority: str
-    confidence: float = Field(ge=0, le=1)
+    confidence: float | None = None
     explanation: str
     expected_impact: dict[str, Any]
-    status: str = "operator_review"
+    status: str = "review_required"
+    requires_operator_review: bool = True
 
 
 ALLOWED_DEV_ORIGINS = [
-    "http://localhost:8400",
-    "http://localhost:8504",
-    "http://127.0.0.1:8504",
+    origin.strip()
+    for origin in os.getenv(
+        "NEOGRID_ALLOWED_ORIGINS",
+        "http://localhost:8504,http://127.0.0.1:8504",
+    ).split(",")
+    if origin.strip()
 ]
 
-app = FastAPI(title="NeoGrid API", version="0.1.0")
+app = FastAPI(title="NeoGrid API", version="0.2.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_DEV_ORIGINS,
@@ -49,76 +58,139 @@ def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def energy_summary(state: EnergyState = EnergyState()) -> dict[str, Any]:
-    renewable_share = min(100, round((state.solar_kw / max(state.load_kw + state.irrigation_load_kw, 1)) * 100, 1))
+def input_provenance(state: EnergyState) -> dict[str, Any]:
+    provided = sorted(state.model_fields_set)
+    defaulted = sorted(set(type(state).model_fields) - set(provided))
+    if not provided:
+        mode = "synthetic_defaults"
+    elif defaulted:
+        mode = "mixed_synthetic_and_caller_supplied"
+    else:
+        mode = "caller_supplied_unverified"
+    return {
+        "data_mode": mode,
+        "provided_fields": provided,
+        "defaulted_fields": defaulted,
+        "synthetic_defaults_present": bool(defaulted),
+        "caller_supplied_values_verified": False,
+        "note": (
+            "Default values are synthetic demonstration inputs. Caller-supplied values "
+            "are unverified until source, timestamps, units and calibration are checked."
+        ),
+    }
+
+
+def methodology() -> dict[str, Any]:
+    return {
+        "type": "input_validation_and_transparent_arithmetic_only",
+        "version": "neogrid-screening-v0.2",
+        "calibrated_model": False,
+        "trained_machine_learning": False,
+        "dispatch_optimizer": False,
+        "limitations": [
+            "No site meter, inverter, battery BMS, tariff or grid-factor feed is connected.",
+            "No time-series baseline or forecast validation dataset is available.",
+            "No dispatch action or impact estimate is produced.",
+            "Operator review and equipment safety constraints are mandatory.",
+        ],
+    }
+
+
+def metadata(state: EnergyState) -> dict[str, Any]:
+    return {
+        "input_provenance": input_provenance(state),
+        "methodology": methodology(),
+        "requires_operator_review": True,
+    }
+
+
+def energy_summary(state: EnergyState) -> dict[str, Any]:
+    total_demand = state.load_kw + state.irrigation_load_kw
+    renewable_share = (
+        round((state.solar_kw / total_demand) * 100, 1)
+        if total_demand > 0
+        else None
+    )
     return {
         "site_id": state.site_id,
-        "scenario": "SolarHub energy optimization",
+        "scenario": "NeoGrid input screening · demonstration",
         "kpis": [
-            {"label": "Solar Production", "value": state.solar_kw, "unit": "kW", "trend": "up"},
-            {"label": "Battery State", "value": state.battery_soc_pct, "unit": "%", "trend": "stable"},
-            {"label": "Site Load", "value": state.load_kw, "unit": "kW", "trend": "up"},
-            {"label": "Grid Import", "value": state.grid_import_kw, "unit": "kW", "trend": "down"},
-            {"label": "Renewable Share", "value": renewable_share, "unit": "%", "trend": "up"},
-            {"label": "Carbon Intensity", "value": state.carbon_intensity_gco2_kwh, "unit": "gCO2/kWh", "trend": "down"},
+            {"label": "Solar input", "value": state.solar_kw, "unit": "kW", "trend": "not_assessed"},
+            {"label": "Battery state input", "value": state.battery_soc_pct, "unit": "%", "trend": "not_assessed"},
+            {"label": "Site load input", "value": state.load_kw, "unit": "kW", "trend": "not_assessed"},
+            {"label": "Grid import input", "value": state.grid_import_kw, "unit": "kW", "trend": "not_assessed"},
+            {"label": "Carbon intensity input", "value": state.carbon_intensity_gco2_kwh, "unit": "gCO2/kWh", "trend": "not_assessed"},
         ],
+        "derived_arithmetic": {
+            "solar_to_reported_demand_ratio_pct": renewable_share,
+            "interpretation": "Arithmetic ratio of supplied values only; not a verified renewable share or measured system balance.",
+        },
         "generated_at": now_iso(),
+        **metadata(state),
     }
 
 
 def forecast_energy(state: EnergyState) -> dict[str, Any]:
-    heat_derate_pct = 6 if state.temperature_c >= 37 else 2
-    irrigation_peak_risk = "high" if state.irrigation_load_kw >= 8 else "medium"
     return {
         "site_id": state.site_id,
-        "solar_derate_pct": heat_derate_pct,
-        "expected_solar_kw": round(state.solar_kw * (1 - heat_derate_pct / 100), 2),
-        "battery_reserve_pct": max(20, state.battery_soc_pct - 18),
-        "irrigation_peak_risk": irrigation_peak_risk,
-        "grid_dependency_risk": "medium" if state.grid_import_kw > 0 else "low",
+        "status": "not_assessed",
+        "forecast": None,
+        "reason": (
+            "A validated time series, weather inputs, equipment parameters, and out-of-sample "
+            "evaluation are required before NeoGrid can publish a forecast."
+        ),
         "generated_at": now_iso(),
+        **metadata(state),
     }
 
 
 def optimize_energy(state: EnergyState) -> dict[str, Any]:
     return {
         "site_id": state.site_id,
-        "plan": "charge_morning_shift_irrigation_evening",
-        "actions": [
-            "Maintain battery reserve above 45% before irrigation window",
-            "Use morning solar peak for battery charging",
-            "Shift irrigation pump load to lower-carbon evening window",
-            "Limit grid import during high carbon intensity periods",
-        ],
-        "expected_grid_import_reduction_kwh": 12.4,
-        "expected_carbon_reduction_kg": 6.8,
-        "expected_self_consumption_gain_pct": 9,
+        "status": "not_estimable_from_available_inputs",
+        "plan": None,
+        "actions": [],
+        "expected_grid_import_reduction_kwh": None,
+        "expected_carbon_reduction_kg": None,
+        "expected_self_consumption_gain_pct": None,
+        "reason": (
+            "Dispatch planning requires synchronized meter and BMS time series, equipment "
+            "limits, tariffs, grid constraints, efficiency curves and an approved objective."
+        ),
         "generated_at": now_iso(),
+        **metadata(state),
     }
 
 
 def recommend_energy(state: EnergyState) -> EnergyRecommendation:
     return EnergyRecommendation(
-        id="neogrid-rec-battery-irrigation-001",
-        title="Coordinate battery charging with irrigation timing",
-        priority="high",
-        confidence=0.84,
+        id="neogrid-review-inputs-001",
+        title="Verify metered generation, load, battery and tariff inputs before dispatch planning",
+        priority="review_required",
+        confidence=None,
         explanation=(
-            "Heat reduces solar output while irrigation load rises. NeoGrid recommends charging during the morning solar peak "
-            "and reserving battery capacity for the coordinated irrigation window."
+            "The current input contract does not include verified time-series telemetry, "
+            "battery operating limits, tariff schedules or grid constraints. No dispatch "
+            "recommendation is generated from synthetic defaults or unverified values."
         ),
         expected_impact={
-            "grid_import_reduction_kwh": 12.4,
-            "carbon_reduction_kg": 6.8,
-            "renewable_self_consumption_gain_pct": 9,
-            "battery_reserve_pct": 45,
+            "grid_import_reduction_kwh": None,
+            "carbon_reduction_kg": None,
+            "renewable_self_consumption_gain_pct": None,
         },
+        status="review_required",
+        requires_operator_review=True,
     )
 
 
 @app.get("/health")
 def health() -> dict[str, str]:
-    return {"status": "ok", "service": "neogrid-api", "time": now_iso()}
+    return {
+        "status": "ok",
+        "service": "neogrid-api",
+        "mode": "decision_support_only",
+        "time": now_iso(),
+    }
 
 
 @app.get("/api/v1/dashboard/summary")
@@ -144,4 +216,9 @@ def run_optimization(state: EnergyState) -> dict[str, Any]:
 
 @app.post("/api/v1/recommendations/run")
 def run_recommendations(state: EnergyState) -> dict[str, Any]:
-    return {"status": "completed", "recommendations": [recommend_energy(state).model_dump()], "generated_at": now_iso()}
+    return {
+        "status": "review_required",
+        "recommendations": [recommend_energy(state).model_dump()],
+        "generated_at": now_iso(),
+        **metadata(state),
+    }
