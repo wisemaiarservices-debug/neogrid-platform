@@ -32,7 +32,7 @@ def test_energy_summary_labels_arithmetic_as_unverified_input_ratio():
     result = energy_summary(EnergyState(solar_kw=20, load_kw=40, irrigation_load_kw=10))
     assert result["derived_arithmetic"]["solar_to_reported_demand_ratio_pct"] == pytest.approx(40.0)
     assert "not a verified renewable share" in result["derived_arithmetic"]["interpretation"]
-    assert result["input_provenance"]["data_mode"] == "synthetic_defaults"
+    assert result["input_provenance"]["data_mode"] == "mixed_synthetic_and_caller_supplied"
 
 
 def test_forecast_is_not_fabricated():
