@@ -1,25 +1,69 @@
 from fastapi.middleware.cors import CORSMiddleware
+import pytest
 
-from service.main import ALLOWED_DEV_ORIGINS, EnergyState, app, forecast_energy, optimize_energy, recommend_energy
+from service.main import (
+    ALLOWED_DEV_ORIGINS,
+    EnergyState,
+    app,
+    energy_summary,
+    forecast_energy,
+    input_provenance,
+    optimize_energy,
+    recommend_energy,
+)
 
 
-def test_forecast_heat_derate():
+def test_default_inputs_are_explicitly_synthetic():
+    provenance = input_provenance(EnergyState())
+    assert provenance["data_mode"] == "synthetic_defaults"
+    assert provenance["synthetic_defaults_present"] is True
+    assert provenance["caller_supplied_values_verified"] is False
+
+
+def test_caller_inputs_remain_unverified_and_defaults_are_reported():
+    state = EnergyState(solar_kw=12.0)
+    provenance = input_provenance(state)
+    assert provenance["data_mode"] == "mixed_synthetic_and_caller_supplied"
+    assert "solar_kw" in provenance["provided_fields"]
+    assert "load_kw" in provenance["defaulted_fields"]
+
+
+def test_energy_summary_labels_arithmetic_as_unverified_input_ratio():
+    result = energy_summary(EnergyState(solar_kw=20, load_kw=40, irrigation_load_kw=10))
+    assert result["derived_arithmetic"]["solar_to_reported_demand_ratio_pct"] == pytest.approx(40.0)
+    assert "not a verified renewable share" in result["derived_arithmetic"]["interpretation"]
+    assert result["input_provenance"]["data_mode"] == "synthetic_defaults"
+
+
+def test_forecast_is_not_fabricated():
     result = forecast_energy(EnergyState(temperature_c=39, solar_kw=50))
-    assert result["solar_derate_pct"] == 6
-    assert result["expected_solar_kw"] == 47
+    assert result["status"] == "not_assessed"
+    assert result["forecast"] is None
+    assert result["methodology"]["calibrated_model"] is False
 
 
-def test_optimization_contains_actions():
+def test_optimizer_withholds_unverified_actions_and_impacts():
     result = optimize_energy(EnergyState())
-    assert result["expected_grid_import_reduction_kwh"] > 0
-    assert len(result["actions"]) >= 3
+    assert result["status"] == "not_estimable_from_available_inputs"
+    assert result["plan"] is None
+    assert result["actions"] == []
+    assert result["expected_grid_import_reduction_kwh"] is None
+    assert result["expected_carbon_reduction_kg"] is None
 
 
-def test_recommendation_operator_review():
-    rec = recommend_energy(EnergyState())
-    assert "battery" in rec.title.lower()
-    assert rec.status == "operator_review"
-    assert rec.confidence > 0.5
+def test_recommendation_is_review_only_without_confidence_or_impact_claims():
+    rec = recommend_energy(EnergyState()).model_dump()
+    assert rec["status"] == "review_required"
+    assert rec["confidence"] is None
+    assert rec["requires_operator_review"] is True
+    assert rec["expected_impact"]["carbon_reduction_kg"] is None
+
+
+def test_energy_input_bounds_and_extra_fields_are_rejected():
+    with pytest.raises(ValueError):
+        EnergyState(battery_soc_pct=140)
+    with pytest.raises(ValueError):
+        EnergyState(unexpected_input=1)
 
 
 def test_cors_allows_neogrid_web_dev_origin():
