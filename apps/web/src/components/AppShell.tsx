@@ -72,7 +72,7 @@ export function AppShell({ children, path, apiStatus }: { children: React.ReactN
         <div className="border-t border-border p-3">
           <div className="panel-elevated p-3 text-xs">
             <div className="flex items-center gap-2 mb-1.5">
-              <span className={cn("status-dot live", apiStatus === "connected" ? "text-[color:var(--success)]" : "text-[color:var(--warning)]")} />
+              <span className={cn("status-dot", apiStatus === "connected" ? "text-[color:var(--success)]" : "text-[color:var(--warning)]")} />
               <span className="mono text-[10px] uppercase tracking-widest text-muted-foreground">
                 {apiStatus === "connected" ? "API responding · telemetry unverified" : "Demo mode · no API response"}
               </span>
@@ -85,7 +85,7 @@ export function AppShell({ children, path, apiStatus }: { children: React.ReactN
       <div className="flex-1 min-w-0 flex flex-col">
         <header className="h-14 border-b border-border bg-background/60 backdrop-blur sticky top-0 z-20 flex items-center px-4 gap-3">
           <div className="flex items-center gap-2 mono text-[11px] uppercase tracking-widest text-muted-foreground">
-            <span className="status-dot text-primary live" />
+            <span className="status-dot text-primary" />
             Demo scenario / SolarHub Energy Site
           </div>
           <div className="ml-auto flex items-center gap-2">
