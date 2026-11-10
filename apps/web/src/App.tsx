@@ -195,7 +195,7 @@ function BatteriesPage() {
               <div className="panel-elevated p-3"><div className="text-muted-foreground">Power</div><div className="mono">{battery.power}</div></div>
               <div className="panel-elevated p-3"><div className="text-muted-foreground">Reserve</div><div className="mono">{battery.reserve}</div></div>
             </div>
-            <div className="mt-4"><Sparkline data={[60, 64, 71, 78, 82, 80, 74, battery.soc]} color="var(--primary)" /></div>
+            <div className="mt-4 text-[10px] text-muted-foreground">No battery telemetry connected · demo record only</div>
           </Panel>
         ))}
       </div>
@@ -406,14 +406,14 @@ function GenerationMix() {
 
 function BatteryIntelligence() {
   return (
-    <Panel title="Battery Intelligence" subtitle="aggregate fleet">
+    <Panel title="Battery Intelligence" subtitle="BMS feed not connected">
       <div className="grid grid-cols-2 gap-3">
-        <Metric label="SoC" value="76" unit="%" tone="info" />
-        <Metric label="Throughput" value="1.4" unit="GWh" tone="success" />
-        <Metric label="Lifespan" value="12.4" unit="yrs" />
-        <Metric label="Cycles" value="284" unit="ytd" />
+        <Metric label="State of charge" value="—" unit="%" tone="info" />
+        <Metric label="Throughput" value="—" unit="kWh" />
+        <Metric label="State of health" value="—" unit="%" />
+        <Metric label="Cycle count" value="—" unit="cycles" />
       </div>
-      <div className="mt-3"><Sparkline data={[60, 64, 71, 78, 82, 80, 74, 76, 79, 76]} color="var(--primary)" /></div>
+      <div className="mt-3 text-xs text-muted-foreground">Battery metrics remain unavailable until a verified BMS integration supplies timestamps, units and asset identity.</div>
     </Panel>
   );
 }
