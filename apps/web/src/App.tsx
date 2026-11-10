@@ -458,7 +458,7 @@ function RecommendationQueue({ compact = false }: { compact?: boolean }) {
               <span className="mono text-xs text-[color:var(--success)] tabular-nums">{rec.impact}</span>
             </div>
             <div className="mt-1 text-[10px] text-muted-foreground mono">{rec.endpoint}</div>
-            <div className="h-0.5 mt-2 bg-border/60 overflow-hidden rounded-full"><div className="h-full bg-primary" style={{ width: `${rec.confidence}%` }} /></div>
+            
           </li>
         ))}
       </ul>
