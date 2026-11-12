@@ -2,7 +2,7 @@
 
 ## Status
 
-This is a transport helper and mock-transport test suite only. It is not called by
+This is a strict NOVA Core v1 transport helper and contract-conformance test suite only. It is not called by
 the current NeoGrid demo API, does not add a public write route, and does not
 assert that inverter, battery or meter telemetry is connected.
 
@@ -15,7 +15,7 @@ assert that inverter, battery or meter telemetry is connected.
 - NOVA Core remains authoritative for Access JWT verification, service/module/
   source grants, payload validation, ownership, idempotency, audit records and
   server-assigned \`unverified\` status.
-- Synthetic demo values must never be forwarded as observations.
+- Synthetic demo values must never be forwarded as observations. The adapter validates the Core v1 envelope, locks the module identity and requires explicit opt-in. NOVA Core derives tenant ownership from registered site/source/asset records; producers must never send `tenant_id`.
 
 ## Server environment
 
