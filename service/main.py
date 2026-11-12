@@ -14,14 +14,14 @@ class EnergyState(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    site_id: str = "demo-site-neogrid-001"
-    solar_kw: float = Field(default=42.6, ge=0)
-    battery_soc_pct: float = Field(default=67, ge=0, le=100)
-    load_kw: float = Field(default=31.4, ge=0)
-    grid_import_kw: float = Field(default=4.8, ge=0)
-    carbon_intensity_gco2_kwh: float = Field(default=410, ge=0)
-    irrigation_load_kw: float = Field(default=9.5, ge=0)
-    temperature_c: float = Field(default=39, ge=-80, le=65)
+    site_id: str | None = None
+    solar_kw: float | None = Field(default=None, ge=0)
+    battery_soc_pct: float | None = Field(default=None, ge=0, le=100)
+    load_kw: float | None = Field(default=None, ge=0)
+    grid_import_kw: float | None = Field(default=None, ge=0)
+    carbon_intensity_gco2_kwh: float | None = Field(default=None, ge=0)
+    irrigation_load_kw: float | None = Field(default=None, ge=0)
+    temperature_c: float | None = Field(default=None, ge=-80, le=65)
 
 
 class EnergyRecommendation(BaseModel):
@@ -61,17 +61,13 @@ def now_iso() -> str:
 def input_provenance(state: EnergyState) -> dict[str, Any]:
     provided = sorted(state.model_fields_set)
     defaulted = sorted(set(type(state).model_fields) - set(provided))
-    if not provided:
-        mode = "synthetic_defaults"
-    elif defaulted:
-        mode = "mixed_synthetic_and_caller_supplied"
-    else:
-        mode = "caller_supplied_unverified"
+    mode = "caller_supplied_unverified" if provided else "insufficient_inputs"
     return {
         "data_mode": mode,
         "provided_fields": provided,
-        "defaulted_fields": defaulted,
-        "synthetic_defaults_present": bool(defaulted),
+        "defaulted_fields": [],
+        "missing_fields": sorted(set(type(state).model_fields) - set(provided)),
+        "synthetic_defaults_present": False,
         "caller_supplied_values_verified": False,
         "note": (
             "Default values are synthetic demonstration inputs. Caller-supplied values "
@@ -105,15 +101,12 @@ def metadata(state: EnergyState) -> dict[str, Any]:
 
 
 def energy_summary(state: EnergyState) -> dict[str, Any]:
-    total_demand = state.load_kw + state.irrigation_load_kw
-    renewable_share = (
-        round((state.solar_kw / total_demand) * 100, 1)
-        if total_demand > 0
-        else None
-    )
+    ratio_inputs = (state.solar_kw, state.load_kw, state.irrigation_load_kw)
+    total_demand = state.load_kw + state.irrigation_load_kw if state.load_kw is not None and state.irrigation_load_kw is not None else None
+    renewable_share = round((state.solar_kw / total_demand) * 100, 1) if all(v is not None for v in ratio_inputs) and total_demand and total_demand > 0 else None
     return {
         "site_id": state.site_id,
-        "scenario": "NeoGrid input screening · demonstration",
+        "scenario": "NeoGrid input screening · no assumed site or measurements",
         "kpis": [
             {"label": "Solar input", "value": state.solar_kw, "unit": "kW", "trend": "not_assessed"},
             {"label": "Battery state input", "value": state.battery_soc_pct, "unit": "%", "trend": "not_assessed"},
