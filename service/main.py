@@ -10,9 +10,9 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class EnergyState(BaseModel):
-    """Input contract; defaults are synthetic demo values, never telemetry."""
+    """Input contract; omitted measurements stay unknown and are never telemetry."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
 
     site_id: str | None = None
     solar_kw: float | None = Field(default=None, ge=0)
