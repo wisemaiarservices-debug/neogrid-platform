@@ -72,12 +72,12 @@ export function AppShell({ children, path, apiStatus }: { children: React.ReactN
         <div className="border-t border-border p-3">
           <div className="panel-elevated p-3 text-xs">
             <div className="flex items-center gap-2 mb-1.5">
-              <span className={cn("status-dot live", apiStatus === "connected" ? "text-[color:var(--success)]" : "text-[color:var(--warning)]")} />
+              <span className={cn("status-dot", apiStatus === "connected" ? "text-[color:var(--success)]" : "text-[color:var(--warning)]")} />
               <span className="mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                {apiStatus === "connected" ? "API connected" : "Fallback mode"}
+                {apiStatus === "connected" ? "API responding · telemetry unverified" : "Demo mode · no API response"}
               </span>
             </div>
-            <div className="text-foreground/90 leading-snug">Operator-approved energy intelligence for SolarHub renewable infrastructure.</div>
+            <div className="text-foreground/90 leading-snug">API reachability is not proof of meter, inverter or battery telemetry. All visible metrics remain illustrative until verified feeds are connected.</div>
           </div>
         </div>
       </aside>
@@ -85,17 +85,17 @@ export function AppShell({ children, path, apiStatus }: { children: React.ReactN
       <div className="flex-1 min-w-0 flex flex-col">
         <header className="h-14 border-b border-border bg-background/60 backdrop-blur sticky top-0 z-20 flex items-center px-4 gap-3">
           <div className="flex items-center gap-2 mono text-[11px] uppercase tracking-widest text-muted-foreground">
-            <span className="status-dot text-primary live" />
-            Live / SolarHub Energy Site
+            <span className="status-dot text-primary" />
+            Demo scenario / SolarHub Energy Site
           </div>
           <div className="ml-auto flex items-center gap-2">
             <span className="mono text-[10px] uppercase tracking-widest text-muted-foreground">No autonomous control</span>
             <span className="inline-flex items-center gap-1.5 rounded-sm border border-border px-2 py-1 text-xs text-muted-foreground">
-              <BarChart3 className="size-3.5" /> 5s aggregate
+              <BarChart3 className="size-3.5" /> Static demo fixtures
             </span>
           </div>
         </header>
-        <main className="flex-1 min-w-0">{children}</main>
+        <main className="flex-1 min-w-0"><div role="status" className="border-b border-amber-500/30 bg-amber-950/20 px-4 py-3 text-xs leading-5 text-amber-200"><b>Illustrative demo environment.</b> Dashboard values, charts, asset states and alerts are sample fixtures, not connected grid telemetry. API health only confirms service reachability; no forecast, dispatch action or measured impact is validated by this status.</div>{children}</main>
       </div>
     </div>
   );

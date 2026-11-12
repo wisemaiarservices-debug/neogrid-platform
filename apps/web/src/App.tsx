@@ -100,7 +100,7 @@ function OverviewPage() {
       </div>
 
       <div className="grid grid-cols-12 gap-4">
-        <Panel title="Generation vs Demand" subtitle="24h / MW / deterministic fallback" className="col-span-12 xl:col-span-8" actions={<Legend />}>
+        <Panel title="Generation vs Demand" subtitle="Illustrative sample series · not operational data" className="col-span-12 xl:col-span-8" actions={<Legend />}>
           <GenerationChart />
         </Panel>
         <Panel title="Grid Health" className="col-span-12 md:col-span-6 xl:col-span-4">
@@ -147,18 +147,18 @@ function GridPage() {
   const frequency = Array.from({ length: 60 }, (_, i) => ({ t: i, hz: 60 + (Math.sin(i / 3) + Math.sin(i / 7)) * 0.04 }));
   return (
     <div>
-      <PageHeader eyebrow="SCADA / 5s polling" title="Grid Operations" description="Live frequency, transmission flows, and substation telemetry." />
+      <PageHeader eyebrow="DEMO SCADA / SAMPLE SERIES" title="Grid Operations" description="Illustrative frequency and flow examples only. No live SCADA, transmission or substation telemetry is connected." />
       <div className="p-5 space-y-4">
         <div className="grid grid-cols-2 md:grid-cols-6 gap-px bg-border rounded-sm overflow-hidden">
-          <div className="bg-background p-4"><Metric label="Frequency" value="60.02" unit="Hz" tone="success" /></div>
-          <div className="bg-background p-4"><Metric label="Voltage" value="500.3" unit="kV" tone="success" /></div>
-          <div className="bg-background p-4"><Metric label="Net Flow" value="+182" unit="MW" tone="info" /></div>
-          <div className="bg-background p-4"><Metric label="Losses" value="2.8" unit="%" /></div>
-          <div className="bg-background p-4"><Metric label="Reserves" value="640" unit="MW" tone="success" /></div>
-          <div className="bg-background p-4"><Metric label="Open Faults" value="2" tone="warning" /></div>
+          <div className="bg-background p-4"><Metric label="Frequency" value="—" unit="Hz" tone="success" /></div>
+          <div className="bg-background p-4"><Metric label="Voltage" value="—" unit="kV" tone="success" /></div>
+          <div className="bg-background p-4"><Metric label="Net Flow" value="—" unit="MW" tone="info" /></div>
+          <div className="bg-background p-4"><Metric label="Losses" value="—" unit="%" /></div>
+          <div className="bg-background p-4"><Metric label="Reserves" value="—" unit="MW" tone="success" /></div>
+          <div className="bg-background p-4"><Metric label="Open Faults" value="—" tone="warning" /></div>
         </div>
         <div className="grid grid-cols-12 gap-4">
-          <Panel title="Live Topology" subtitle="GIS / transmission overlay" className="col-span-12 xl:col-span-8">
+          <Panel title="Illustrative Topology" subtitle="Conceptual GIS-style sample · not a live network" className="col-span-12 xl:col-span-8">
             <GridMap height={460} />
           </Panel>
           <div className="col-span-12 xl:col-span-4 space-y-4">
@@ -195,7 +195,7 @@ function BatteriesPage() {
               <div className="panel-elevated p-3"><div className="text-muted-foreground">Power</div><div className="mono">{battery.power}</div></div>
               <div className="panel-elevated p-3"><div className="text-muted-foreground">Reserve</div><div className="mono">{battery.reserve}</div></div>
             </div>
-            <div className="mt-4"><Sparkline data={[60, 64, 71, 78, 82, 80, 74, battery.soc]} color="var(--primary)" /></div>
+            <div className="mt-4 text-[10px] text-muted-foreground">No battery telemetry connected · demo record only</div>
           </Panel>
         ))}
       </div>
@@ -206,7 +206,7 @@ function BatteriesPage() {
 function ForecastsPage() {
   return (
     <div>
-      <PageHeader eyebrow="Forecast engine" title="Demand and renewable forecasts" description="Forecasts align solar production, irrigation load, battery reserve, and grid import risk." />
+      <PageHeader eyebrow="Forecast engine" title="Demand and renewable forecasts" description="Forecast generation is disabled until validated time-series, weather, equipment and tariff data are connected." />
       <div className="p-5 space-y-4">
         <ForecastPanel wide />
         <Panel title="Forecast windows" padded={false}>
@@ -264,7 +264,7 @@ function RecommendationsPage() {
 function SustainabilityPage() {
   return (
     <div>
-      <PageHeader eyebrow="Carbon analytics" title="Sustainability and carbon impact" description="Measured renewable share, grid import reduction, carbon reduction, and energy efficiency." />
+      <PageHeader eyebrow="Carbon analytics" title="Sustainability and carbon impact" description="Impact reporting is withheld until metered baselines, reporting periods and verified grid factors are available." />
       <div className="p-5">
         <SustainabilitySummary />
       </div>
@@ -275,7 +275,7 @@ function SustainabilityPage() {
 function ReportsPage() {
   return (
     <div>
-      <PageHeader eyebrow="Reports" title="Pilot-ready energy report" description="Export-ready summary for SolarHub mentors, pilot operators, and investor technical review." />
+      <PageHeader eyebrow="Reports" title="Pilot-ready energy report" description="Demonstration report only. No measured energy, carbon, savings or dispatch outcomes are available." />
       <div className="p-5 grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Panel title="API compatibility">
           <ul className="space-y-2">
@@ -287,7 +287,7 @@ function ReportsPage() {
             ))}
           </ul>
         </Panel>
-        <Panel title="Expected impact">
+        <Panel title="Impact accounting · not calculated">
           <div className="grid grid-cols-2 gap-3">
             <Metric label="Grid import reduction" value={impact.gridImportReductionKwh} unit="kWh" tone="success" />
             <Metric label="Carbon reduction" value={impact.carbonReductionKg} unit="kg CO2e" tone="success" />
@@ -330,38 +330,17 @@ function Legend() {
 
 function GridHealth() {
   return (
-    <>
-      <div className="flex items-center gap-5">
-        <HealthRing score={98.4} />
-        <div className="flex-1 space-y-2.5">
-          {[
-            ["Generation", 99, "success"],
-            ["Transmission", 97, "success"],
-            ["Distribution", 96, "success"],
-            ["Storage", 94, "warning"],
-            ["Cyber posture", 99, "success"],
-          ].map(([label, value, tone]) => (
-            <div key={label as string} className="text-xs">
-              <div className="flex justify-between mb-1">
-                <span className="text-muted-foreground">{label}</span>
-                <span className="mono tabular-nums">{value}%</span>
-              </div>
-              <div className="h-1 bg-border/60 rounded-full overflow-hidden">
-                <div className="h-full rounded-full" style={{ width: `${value}%`, background: tone === "warning" ? "var(--warning)" : "var(--success)" }} />
-              </div>
-            </div>
-          ))}
+    <div className="space-y-3">
+      {["Generation telemetry", "Transmission measurements", "Distribution meters", "Battery BMS", "Cybersecurity monitoring"].map((label) => (
+        <div key={label} className="flex items-center justify-between border-b border-border py-2 text-xs last:border-0">
+          <span className="text-muted-foreground">{label}</span>
+          <StatusPill status="info" label="Not connected" />
         </div>
-      </div>
-      <div className="mt-4 pt-4 border-t border-border grid grid-cols-3 gap-3 text-center">
-        <div><div className="mono text-lg tabular-nums text-[color:var(--success)]">1,238</div><div className="mono text-[10px] uppercase tracking-widest text-muted-foreground">Online</div></div>
-        <div><div className="mono text-lg tabular-nums text-[color:var(--warning)]">38</div><div className="mono text-[10px] uppercase tracking-widest text-muted-foreground">Degraded</div></div>
-        <div><div className="mono text-lg tabular-nums text-[color:var(--danger)]">8</div><div className="mono text-[10px] uppercase tracking-widest text-muted-foreground">Offline</div></div>
-      </div>
-    </>
+      ))}
+      <div className="pt-2 text-[10px] leading-5 text-muted-foreground">Grid health scores and asset counts are withheld until verified device inventory, timestamps and telemetry are available.</div>
+    </div>
   );
 }
-
 function HealthRing({ score }: { score: number }) {
   const radius = 42;
   const circumference = 2 * Math.PI * radius;
@@ -406,21 +385,21 @@ function GenerationMix() {
 
 function BatteryIntelligence() {
   return (
-    <Panel title="Battery Intelligence" subtitle="aggregate fleet">
+    <Panel title="Battery Intelligence" subtitle="BMS feed not connected">
       <div className="grid grid-cols-2 gap-3">
-        <Metric label="SoC" value="76" unit="%" tone="info" />
-        <Metric label="Throughput" value="1.4" unit="GWh" tone="success" />
-        <Metric label="Lifespan" value="12.4" unit="yrs" />
-        <Metric label="Cycles" value="284" unit="ytd" />
+        <Metric label="State of charge" value="—" unit="%" tone="info" />
+        <Metric label="Throughput" value="—" unit="kWh" />
+        <Metric label="State of health" value="—" unit="%" />
+        <Metric label="Cycle count" value="—" unit="cycles" />
       </div>
-      <div className="mt-3"><Sparkline data={[60, 64, 71, 78, 82, 80, 74, 76, 79, 76]} color="var(--primary)" /></div>
+      <div className="mt-3 text-xs text-muted-foreground">Battery metrics remain unavailable until a verified BMS integration supplies timestamps, units and asset identity.</div>
     </Panel>
   );
 }
 
 function ForecastPanel({ wide = false }: { wide?: boolean }) {
   return (
-    <Panel title="Demand Forecasting" subtitle="ensemble / weather + load + storage" className={wide ? "" : "col-span-12 xl:col-span-5"} actions={<span className="mono text-[10px] uppercase tracking-widest text-primary">24h</span>}>
+    <Panel title="Demand Forecasting" subtitle="Forecast method not validated · sample chart only" className={wide ? "" : "col-span-12 xl:col-span-5"} actions={<span className="mono text-[10px] uppercase tracking-widest text-primary">24h</span>}>
       <div className="h-56">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={hourlyEnergy} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
@@ -435,8 +414,8 @@ function ForecastPanel({ wide = false }: { wide?: boolean }) {
         </ResponsiveContainer>
       </div>
       <div className="mt-2 flex items-center justify-between text-xs">
-        <span className="text-muted-foreground">Peak forecast</span>
-        <span className="mono tabular-nums">18:00 / 762 MW / +/-3.2%</span>
+        <span className="text-muted-foreground">Forecast status</span>
+        <span className="mono tabular-nums">Not generated</span>
       </div>
     </Panel>
   );
@@ -445,26 +424,24 @@ function ForecastPanel({ wide = false }: { wide?: boolean }) {
 function RecommendationQueue({ compact = false }: { compact?: boolean }) {
   const items = compact ? recommendations.slice(0, 4) : recommendations;
   return (
-    <Panel title="NOVA Recommendations" subtitle="AI / operator review" className={compact ? "col-span-12 md:col-span-6 xl:col-span-4" : ""} actions={<Cpu className="size-3.5 text-primary" />}>
+    <Panel title="NOVA Review Checklist" subtitle="Rule-based data readiness · no dispatch recommendations" className={compact ? "col-span-12 md:col-span-6 xl:col-span-4" : ""} actions={<Cpu className="size-3.5 text-primary" />}>
       <ul className="divide-y divide-border -my-2">
         {items.map((rec) => (
           <li key={rec.id} className="py-2.5 first:pt-0 last:pb-0 hover:bg-panel-elevated/40 -mx-2 px-2 rounded-sm transition">
             <div className="flex items-center justify-between mb-1">
               <span className="mono text-[10px] uppercase tracking-widest text-primary">{rec.tag}</span>
-              <span className="mono text-[10px] text-muted-foreground tabular-nums">{rec.confidence}% conf</span>
+              <span className="mono text-[10px] text-muted-foreground tabular-nums">Not calibrated</span>
             </div>
             <div className="flex items-center justify-between gap-3">
               <span className="text-sm">{rec.title}</span>
               <span className="mono text-xs text-[color:var(--success)] tabular-nums">{rec.impact}</span>
             </div>
             <div className="mt-1 text-[10px] text-muted-foreground mono">{rec.endpoint}</div>
-            <div className="h-0.5 mt-2 bg-border/60 overflow-hidden rounded-full"><div className="h-full bg-primary" style={{ width: `${rec.confidence}%` }} /></div>
+            
           </li>
         ))}
       </ul>
-      <button className="mt-3 w-full mono text-[10px] uppercase tracking-widest text-primary border border-primary/40 hover:bg-primary/10 transition rounded-sm py-2 flex items-center justify-center gap-1.5">
-        Awaiting operator approval <ArrowRight className="size-3" />
-      </button>
+      <div className="mt-3 border-t border-border pt-2 text-[10px] text-muted-foreground">No dispatch action generated. Operator review required before any future recommendation.</div>
     </Panel>
   );
 }
@@ -524,21 +501,16 @@ function AssetsTable({ className = "" }: { className?: string }) {
 
 function SustainabilitySummary({ className = "" }: { className?: string }) {
   return (
-    <Panel title="Sustainability / Today" className={className}>
+    <Panel title="Sustainability accounting · demo" className={className}>
       <div className="grid grid-cols-3 gap-4">
-        <div className="flex flex-col items-start gap-1"><Leaf className="size-4 text-[color:var(--success)]" /><Metric label="CO2 Avoided" value="1,284" unit="tonnes" tone="success" /></div>
-        <div className="flex flex-col items-start gap-1"><Sun className="size-4 text-[color:var(--warning)]" /><Metric label="Renewable" value="88" unit="%" tone="success" /></div>
-        <div className="flex flex-col items-start gap-1"><Wind className="size-4 text-[color:var(--info)]" /><Metric label="Efficiency" value="94.2" unit="%" /></div>
+        <div className="flex flex-col items-start gap-1"><Leaf className="size-4 text-muted-foreground" /><Metric label="CO2 impact" value="—" unit="kg CO2e" /></div>
+        <div className="flex flex-col items-start gap-1"><Sun className="size-4 text-muted-foreground" /><Metric label="Renewable share" value="—" unit="%" /></div>
+        <div className="flex flex-col items-start gap-1"><Wind className="size-4 text-muted-foreground" /><Metric label="Efficiency" value="—" unit="%" /></div>
       </div>
-      <div className="mt-4 pt-4 border-t border-border">
-        <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Renewable share / 7d</div>
-        <Sparkline data={[82, 85, 81, 87, 89, 90, 88]} color="var(--success)" height={48} />
-        <div className="flex justify-between mono text-[10px] text-muted-foreground mt-1"><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span></div>
-      </div>
+      <div className="mt-4 pt-4 border-t border-border text-xs leading-5 text-muted-foreground">No verified meter baseline, reporting period or grid emissions factor is connected. Carbon and savings outcomes are not calculated.</div>
     </Panel>
   );
 }
-
 function SubstationRoster() {
   return (
     <Panel title="Substation Roster" padded={false}>

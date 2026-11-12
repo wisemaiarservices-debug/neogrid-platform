@@ -113,7 +113,7 @@ export function StatusPill({
   status,
   label,
 }: {
-  status: "online" | "warning" | "offline" | "info";
+  status: "online" | "warning" | "offline" | "info" | "unverified";
   label: string;
 }) {
   const map = {
@@ -121,6 +121,7 @@ export function StatusPill({
     warning: "text-[color:var(--warning)] bg-[color:var(--warning)]/10 border-[color:var(--warning)]/30",
     offline: "text-[color:var(--danger)] bg-[color:var(--danger)]/10 border-[color:var(--danger)]/30",
     info: "text-[color:var(--info)] bg-[color:var(--info)]/10 border-[color:var(--info)]/30",
+    unverified: "text-[color:var(--muted-foreground)] bg-[color:var(--muted-foreground)]/10 border-[color:var(--muted-foreground)]/30",
   };
   return (
     <span className={cn("mono inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest px-1.5 py-0.5 rounded-sm border", map[status])}>
