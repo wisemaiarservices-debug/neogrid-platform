@@ -63,8 +63,3 @@ NOVA Core has a design-only proposal for structured device, sampling, calibratio
 ## Explicit activation gate
 
 The adapter requires `NOVA_CORE_INGESTION_ENABLED=true` in addition to valid server-side credentials and the exact HTTPS endpoint. The environment template defaults this flag to `false`; missing or false values fail closed before opening a network connection. Keep it disabled until Core identity, tenant/site/source grants, storage, live acceptance tests and monitoring have been independently approved. This flag does not itself authenticate a producer or verify measurements.
-
-
-## Explicit activation gate
-
-The adapter requires `NOVA_CORE_INGESTION_ENABLED=true` in addition to valid server-side credentials and the exact HTTPS endpoint. The environment template defaults this flag to `false`; missing or false values fail closed before opening a network connection. Keep it disabled until Core identity, tenant/site/source grants, storage, live acceptance tests and monitoring have been independently approved. This flag does not itself authenticate a producer or verify measurements.
