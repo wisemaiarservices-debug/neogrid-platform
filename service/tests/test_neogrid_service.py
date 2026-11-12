@@ -13,26 +13,38 @@ from service.main import (
 )
 
 
-def test_default_inputs_are_explicitly_synthetic():
-    provenance = input_provenance(EnergyState())
-    assert provenance["data_mode"] == "synthetic_defaults"
-    assert provenance["synthetic_defaults_present"] is True
-    assert provenance["caller_supplied_values_verified"] is False
+def test_empty_inputs_do_not_create_synthetic_site_or_measurements():
+    state = EnergyState()
+    provenance = input_provenance(state)
+    assert state.site_id is None
+    assert state.solar_kw is None
+    assert provenance["data_mode"] == "insufficient_inputs"
+    assert provenance["defaulted_fields"] == []
+    assert provenance["synthetic_defaults_present"] is False
+    assert "solar_kw" in provenance["missing_fields"]
 
 
-def test_caller_inputs_remain_unverified_and_defaults_are_reported():
+def test_caller_inputs_remain_unverified_without_filling_other_fields():
     state = EnergyState(solar_kw=12.0)
     provenance = input_provenance(state)
-    assert provenance["data_mode"] == "mixed_synthetic_and_caller_supplied"
+    assert provenance["data_mode"] == "caller_supplied_unverified"
     assert "solar_kw" in provenance["provided_fields"]
-    assert "load_kw" in provenance["defaulted_fields"]
+    assert "load_kw" in provenance["missing_fields"]
+    assert state.load_kw is None
+
+
+def test_empty_energy_summary_withholds_derived_ratio():
+    result = energy_summary(EnergyState())
+    assert result["site_id"] is None
+    assert all(item["value"] is None for item in result["kpis"])
+    assert result["derived_arithmetic"]["solar_to_reported_demand_ratio_pct"] is None
 
 
 def test_energy_summary_labels_arithmetic_as_unverified_input_ratio():
     result = energy_summary(EnergyState(solar_kw=20, load_kw=40, irrigation_load_kw=10))
     assert result["derived_arithmetic"]["solar_to_reported_demand_ratio_pct"] == pytest.approx(40.0)
     assert "not a verified renewable share" in result["derived_arithmetic"]["interpretation"]
-    assert result["input_provenance"]["data_mode"] == "mixed_synthetic_and_caller_supplied"
+    assert result["input_provenance"]["data_mode"] == "caller_supplied_unverified"
 
 
 def test_forecast_is_not_fabricated():
