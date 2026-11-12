@@ -79,6 +79,12 @@ def test_recommendation_is_review_only_without_confidence_or_impact_claims():
     assert rec["expected_impact"]["carbon_reduction_kg"] is None
 
 
+def test_non_finite_measurements_are_rejected():
+    for value in (float("nan"), float("inf"), float("-inf")):
+        with pytest.raises(ValueError):
+            EnergyState(solar_kw=value)
+
+
 def test_energy_input_bounds_and_extra_fields_are_rejected():
     with pytest.raises(ValueError):
         EnergyState(battery_soc_pct=140)
