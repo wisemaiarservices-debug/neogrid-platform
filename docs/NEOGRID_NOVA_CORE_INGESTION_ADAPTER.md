@@ -1,43 +1,37 @@
-# NeoGrid → NOVA Core server-side ingestion adapter
+# NeoGrid → NOVA Core server-side observation adapter
 
 ## Status
 
-This is a strict NOVA Core v1 transport helper and contract-conformance test suite only. It is not called by
-the current NeoGrid demo API, does not add a public write route, and does not
-assert that inverter, battery or meter telemetry is connected.
+This PR adds a strict NOVA Core v1 transport helper and contract-conformance tests. It does not connect the NeoGrid demo UI or producer loops, and it does not claim live telemetry.
 
 ## Trust boundary
 
-- Invoke \`service/nova_core_ingestion.py\` only from trusted backend code after
-  authenticating the producer and resolving registered site/source/asset IDs.
-- Keep Cloudflare Access credentials in server-only runtime secrets. Never use
-  \`VITE_\`, \`NEXT_PUBLIC_\`, browser storage, HTML or client responses.
-- NOVA Core remains authoritative for Access JWT verification, service/module/
-  source grants, payload validation, ownership, idempotency, audit records and
-  server-assigned \`unverified\` status.
-- Synthetic demo values must never be forwarded as observations. The adapter validates the Core v1 envelope, locks the module identity and requires explicit opt-in. NOVA Core derives tenant ownership from registered site/source/asset records; producers must never send `tenant_id`.
+- Invoke `service/nova_core_ingestion.py` only from trusted backend code after authenticating the producer and resolving registered site/source/asset identifiers.
+- Keep Cloudflare Access service-token credentials in server-side secrets only. Never expose them through browser bundles, public environment variables, HTML, local storage, logs or client responses.
+- The adapter validates the exact NOVA Core v1 envelope, bounds request/response sizes, uses HTTPS, applies a timeout and normalizes upstream errors.
+- Ingestion requires explicit opt-in with `NOVA_CORE_INGESTION_ENABLED=true`; the environment example defaults to `false`.
+- The producer must not send `tenant_id`. NOVA Core derives tenant ownership from the active registered site/source/asset records and writes the observation and audit event under that tenant.
+- Synthetic/demo values must never be forwarded as observations. Accepted records remain `unverified` until independently reviewed.
 
 ## Server environment
 
-- \`NOVA_CORE_INGESTION_URL\`: exact HTTPS URL ending in \`/api/v1/observations\`
-- \`NOVA_CORE_ACCESS_CLIENT_ID\`: Cloudflare Access service-token client ID
-- \`NOVA_CORE_ACCESS_CLIENT_SECRET\`: Cloudflare Access service-token secret
+- `NOVA_CORE_INGESTION_ENABLED`: keep `false` until all activation gates pass.
+- `NOVA_CORE_INGESTION_URL`: exact HTTPS URL ending in `/api/v1/observations` on a dedicated Access-protected custom hostname. Public `workers.dev` and preview URLs are disabled for the ingestion Worker.
+- `NOVA_CORE_ACCESS_CLIENT_ID`: Cloudflare Access service-token client ID.
+- `NOVA_CORE_ACCESS_CLIENT_SECRET`: Cloudflare Access service-token secret.
 
-All values are intentionally blank in the example. Missing configuration fails
-closed. The client does not follow redirects, limits response size, and avoids
-logging or returning upstream response bodies.
+All credentials are blank in the example. Missing configuration or disabled opt-in fails closed. No browser route is provided by this helper.
 
-## Enablement gates
+## Activation gates
 
-1. Deploy the isolated NOVA Core ingestion Worker and configure Cloudflare Access
-   Service Auth on its dedicated hostname.
-2. Provision D1, apply the reviewed migration and bind it as \`DB\`.
-3. Register actual NeoGrid site, inverter/meter/battery assets and source IDs.
-4. Grant the producer only \`neogrid\` and its exact registered source IDs.
-5. Store service credentials only in the protected backend runtime.
-6. Implement an authenticated producer path with rate limits and monitoring.
-7. Run live acceptance tests for authorization, ownership, idempotency, conflict
-   and storage outage behavior.
+1. Deploy the tenant-aware NOVA Core ingestion Worker only after account plan/quota review; keep `workers_dev=false` and `preview_urls=false`.
+2. Provision D1 and apply the ordered migrations `0001_initial.sql` through `0004_tenant_ownership_immutability.sql`; bind it as `DB`.
+3. Create a dedicated custom hostname and Cloudflare Access Service Auth policy restricted to the intended service identity.
+4. Register real NeoGrid site, inverters, meters, batteries and registered energy sources; never reuse demo IDs.
+5. Configure exact service → module → source grants and store the service token only in the trusted backend runtime.
+6. Add an authenticated producer workflow with rate limits, idempotency and monitoring; do not enable the flag before this exists.
+7. Run live acceptance tests for valid ingestion, wrong source/module, unknown or cross-tenant ownership, disabled source, retries, changed-payload conflict and D1 outage.
 
-Until those gates pass, this is an unconfigured integration foundation. No
-production behavior or public endpoint is changed.
+## Current limitation
+
+The helper is not called by an active producer path. No D1, Access application/policy, credentials, source records, custom hostname, Worker deployment or live ingestion has been provisioned. CI verifies the adapter contract and module build only.
