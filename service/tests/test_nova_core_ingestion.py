@@ -85,6 +85,7 @@ class NovaGridIngestionTests(unittest.TestCase):
             dict(self.payload, observed_at="2099-11-10T12:00:00Z"),
             dict(self.payload, value=True),
             dict(self.payload, idempotency_key=""),
+            dict(self.payload, site_id="😀" * 61),
             dict(self.payload, unexpected_field="not-accepted"),
             dict(self.payload, provenance={"provider": "test", "acquisition_method": "sensor", "secret": "no"}),
             dict(self.payload, provenance={"provider": "test", "acquisition_method": []}),
@@ -126,6 +127,13 @@ class NovaGridIngestionTests(unittest.TestCase):
             submit_observation(self.payload, environ=self.env, connection_factory=RejectedConnection)
         self.assertEqual(caught.exception.status, 403)
         self.assertNotIn("grid-client-secret", str(caught.exception))
+
+    def test_matches_core_utf16_string_length_boundaries(self):
+        accepted = dict(self.payload, site_id="😀" * 60)
+        submit_observation(accepted, environ=self.env, connection_factory=FakeConnection)
+        rejected = dict(self.payload, site_id="😀" * 61)
+        with self.assertRaisesRegex(NovaCoreIngestionError, "invalid_site_id"):
+            submit_observation(rejected, environ=self.env, connection_factory=FakeConnection)
 
 
 if __name__ == "__main__":
