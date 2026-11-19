@@ -91,7 +91,7 @@ export function AppShell({ children, path, apiStatus }: { children: React.ReactN
           <div className="ml-auto flex items-center gap-2">
             <span className="mono text-[10px] uppercase tracking-widest text-muted-foreground">No autonomous control</span>
             <span className="inline-flex items-center gap-1.5 rounded-sm border border-border px-2 py-1 text-xs text-muted-foreground">
-              <BarChart3 className="size-3.5" /> 5s aggregate
+              <BarChart3 className="size-3.5" /> Synthetic fixtures
             </span>
           </div>
         </header>
