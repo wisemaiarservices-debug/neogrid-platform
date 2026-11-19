@@ -100,7 +100,7 @@ function OverviewPage() {
       </div>
 
       <div className="grid grid-cols-12 gap-4">
-        <Panel title="Generation vs Demand" subtitle="24h / MW / deterministic fallback" className="col-span-12 xl:col-span-8" actions={<Legend />}>
+        <Panel title="Generation vs Demand · sample scenario" subtitle="24h sample / MW / illustrative fixture" className="col-span-12 xl:col-span-8" actions={<Legend />}>
           <GenerationChart />
         </Panel>
         <Panel title="Grid Health" className="col-span-12 md:col-span-6 xl:col-span-4">
@@ -147,7 +147,7 @@ function GridPage() {
   const frequency = Array.from({ length: 60 }, (_, i) => ({ t: i, hz: 60 + (Math.sin(i / 3) + Math.sin(i / 7)) * 0.04 }));
   return (
     <div>
-      <PageHeader eyebrow="SCADA / 5s polling" title="Grid Operations" description="Live frequency, transmission flows, and substation telemetry." />
+      <PageHeader eyebrow="Grid operations · demo scenario" title="Grid Operations" description="Illustrative frequency, transmission-flow and substation scenarios · not live telemetry." />
       <div className="p-5 space-y-4">
         <div className="grid grid-cols-2 md:grid-cols-6 gap-px bg-border rounded-sm overflow-hidden">
           <div className="bg-background p-4"><Metric label="Frequency" value="60.02" unit="Hz" tone="success" /></div>
@@ -158,11 +158,11 @@ function GridPage() {
           <div className="bg-background p-4"><Metric label="Open Faults" value="2" tone="warning" /></div>
         </div>
         <div className="grid grid-cols-12 gap-4">
-          <Panel title="Live Topology" subtitle="GIS / transmission overlay" className="col-span-12 xl:col-span-8">
+          <Panel title="Topology Scenario" subtitle="GIS / transmission overlay" className="col-span-12 xl:col-span-8">
             <GridMap height={460} />
           </Panel>
           <div className="col-span-12 xl:col-span-4 space-y-4">
-            <Panel title="System Frequency" subtitle="last 60s / target 60.00 Hz">
+            <Panel title="System Frequency" subtitle="illustrative 60-second sample / nominal reference 60.00 Hz">
               <div className="h-40">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={frequency} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
@@ -264,7 +264,7 @@ function RecommendationsPage() {
 function SustainabilityPage() {
   return (
     <div>
-      <PageHeader eyebrow="Carbon analytics" title="Sustainability and carbon impact" description="Measured renewable share, grid import reduction, carbon reduction, and energy efficiency." />
+      <PageHeader eyebrow="Carbon analytics" title="Sustainability and carbon impact" description="Illustrative renewable share, grid-import reduction, carbon and efficiency metrics · not independently measured." />
       <div className="p-5">
         <SustainabilitySummary />
       </div>
@@ -275,14 +275,14 @@ function SustainabilityPage() {
 function ReportsPage() {
   return (
     <div>
-      <PageHeader eyebrow="Reports" title="Pilot-ready energy report" description="Export-ready summary for SolarHub mentors, pilot operators, and investor technical review." />
+      <PageHeader eyebrow="Reports" title="Illustrative energy report" description="Sample report layout for product review · not pilot evidence or investor-validated results." />
       <div className="p-5 grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Panel title="API compatibility">
+        <Panel title="API contract reference (not runtime verification)">
           <ul className="space-y-2">
             {apiEndpoints.map((endpoint) => (
               <li key={endpoint} className="flex items-center justify-between text-sm border-b border-border pb-2 last:border-0">
                 <span className="mono text-primary">{endpoint}</span>
-                <StatusPill status="info" label="supported" />
+                <StatusPill status="info" label="specification only" />
               </li>
             ))}
           </ul>
@@ -354,9 +354,9 @@ function GridHealth() {
         </div>
       </div>
       <div className="mt-4 pt-4 border-t border-border grid grid-cols-3 gap-3 text-center">
-        <div><div className="mono text-lg tabular-nums text-[color:var(--success)]">1,238</div><div className="mono text-[10px] uppercase tracking-widest text-muted-foreground">Online</div></div>
-        <div><div className="mono text-lg tabular-nums text-[color:var(--warning)]">38</div><div className="mono text-[10px] uppercase tracking-widest text-muted-foreground">Degraded</div></div>
-        <div><div className="mono text-lg tabular-nums text-[color:var(--danger)]">8</div><div className="mono text-[10px] uppercase tracking-widest text-muted-foreground">Offline</div></div>
+        <div><div className="mono text-lg tabular-nums text-[color:var(--success)]">1,238</div><div className="mono text-[10px] uppercase tracking-widest text-muted-foreground">Sample online fixture</div></div>
+        <div><div className="mono text-lg tabular-nums text-[color:var(--warning)]">38</div><div className="mono text-[10px] uppercase tracking-widest text-muted-foreground">Sample degraded fixture</div></div>
+        <div><div className="mono text-lg tabular-nums text-[color:var(--danger)]">8</div><div className="mono text-[10px] uppercase tracking-widest text-muted-foreground">Sample offline fixture</div></div>
       </div>
     </>
   );
@@ -384,7 +384,7 @@ function HealthRing({ score }: { score: number }) {
 
 function GenerationMix() {
   return (
-    <Panel title="Generation Mix" subtitle="instantaneous %">
+    <Panel title="Generation Mix" subtitle="illustrative generation mix (%)">
       <div className="space-y-3">
         {generationMix.map((mix) => (
           <div key={mix.name}>
@@ -420,7 +420,7 @@ function BatteryIntelligence() {
 
 function ForecastPanel({ wide = false }: { wide?: boolean }) {
   return (
-    <Panel title="Demand Forecasting" subtitle="ensemble / weather + load + storage" className={wide ? "" : "col-span-12 xl:col-span-5"} actions={<span className="mono text-[10px] uppercase tracking-widest text-primary">24h</span>}>
+    <Panel title="Demand Forecasting" subtitle="illustrative model fixture · not a validated forecast" className={wide ? "" : "col-span-12 xl:col-span-5"} actions={<span className="mono text-[10px] uppercase tracking-widest text-primary">24h</span>}>
       <div className="h-56">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={hourlyEnergy} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
@@ -445,7 +445,7 @@ function ForecastPanel({ wide = false }: { wide?: boolean }) {
 function RecommendationQueue({ compact = false }: { compact?: boolean }) {
   const items = compact ? recommendations.slice(0, 4) : recommendations;
   return (
-    <Panel title="NOVA Recommendations" subtitle="AI / operator review" className={compact ? "col-span-12 md:col-span-6 xl:col-span-4" : ""} actions={<Cpu className="size-3.5 text-primary" />}>
+    <Panel title="NOVA Recommendations" subtitle="sample recommendations · operator review only" className={compact ? "col-span-12 md:col-span-6 xl:col-span-4" : ""} actions={<Cpu className="size-3.5 text-primary" />}>
       <ul className="divide-y divide-border -my-2">
         {items.map((rec) => (
           <li key={rec.id} className="py-2.5 first:pt-0 last:pb-0 hover:bg-panel-elevated/40 -mx-2 px-2 rounded-sm transition">
@@ -463,7 +463,7 @@ function RecommendationQueue({ compact = false }: { compact?: boolean }) {
         ))}
       </ul>
       <button className="mt-3 w-full mono text-[10px] uppercase tracking-widest text-primary border border-primary/40 hover:bg-primary/10 transition rounded-sm py-2 flex items-center justify-center gap-1.5">
-        Awaiting operator approval <ArrowRight className="size-3" />
+        Illustrative action · approval workflow not connected <ArrowRight className="size-3" />
       </button>
     </Panel>
   );
@@ -471,7 +471,7 @@ function RecommendationQueue({ compact = false }: { compact?: boolean }) {
 
 function AlertsPanel() {
   return (
-    <Panel title="Alerts & Events" subtitle="last 60 min" className="col-span-12 md:col-span-6 xl:col-span-3">
+    <Panel title="Alerts & Events" subtitle="sample event timeline" className="col-span-12 md:col-span-6 xl:col-span-3">
       <ul className="space-y-3">
         {alerts.map((alert, index) => {
           const Icon = alert.sev === "warning" ? AlertTriangle : alert.sev === "success" ? CheckCircle2 : TrendingUp;
