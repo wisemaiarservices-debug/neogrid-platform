@@ -77,8 +77,6 @@ jobs:
 
   web-build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     defaults:
       run:
         working-directory: apps/web
@@ -95,17 +93,8 @@ jobs:
           node-version: '22'
           cache: pnpm
           cache-dependency-path: apps/web/pnpm-lock.yaml
-      - name: Regenerate dependency lockfile
-        run: pnpm install --no-frozen-lockfile
-      - name: Persist dependency lockfile
-        run: |
-          git -C ../.. add apps/web/pnpm-lock.yaml
-          if ! git -C ../.. diff --cached --quiet; then
-            git -C ../.. config user.name "github-actions[bot]"
-            git -C ../.. config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git -C ../.. commit -m "chore(neogrid): refresh patched dependency lockfile"
-            git -C ../.. push origin "HEAD:${{ github.head_ref || github.ref_name }}"
-          fi
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
       - name: Test provenance labels
         run: pnpm run test
       - name: Typecheck
