@@ -56,3 +56,8 @@ The UI performs a dashboard-summary reachability probe using `VITE_NEOGRID_API_B
 - `/api/v1/forecasts/run`
 - `/api/v1/optimization/run`
 - `/api/v1/recommendations/run`
+
+
+## Web dependency security baseline
+
+The NeoGrid web preview uses Vite `8.3.8`, React/React DOM `19.2.7`, and the committed pnpm lockfile. The pnpm overrides pin `nanoid@3` to patched `3.3.18`, PostCSS to patched `8.5.33`, `source-map-js` to `1.2.4`, Browserslist to patched `4.29.6`, and `baseline-browser-mapping` to `2.11.39`. CI runs `pnpm install --frozen-lockfile`, provenance tests, TypeScript, production and full dependency audits, and the production build. Both audits reported no known vulnerabilities on the regenerated dependency graph; final exact-head frozen-lockfile CI is the remaining check.
