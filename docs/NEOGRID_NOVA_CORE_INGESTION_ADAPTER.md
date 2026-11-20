@@ -17,7 +17,7 @@ This PR adds a strict NOVA Core v1 transport helper and contract-conformance tes
 
 - `NOVA_CORE_INGESTION_ENABLED`: keep `false` until all activation gates pass.
 - `NOVA_CORE_INGESTION_URL`: exact HTTPS URL ending in `/api/v1/observations` on a dedicated Access-protected custom hostname, using port 443.
-- `NOVA_CORE_INGESTION_ALLOWED_HOST`: exact lowercase hostname pin; the adapter rejects a URL whose host differs, any non-443 port, and `workers.dev` hostnames.
+- `NOVA_CORE_INGESTION_ALLOWED_HOST`: exact lowercase hostname pin; the adapter rejects a URL whose host differs, any non-443 port, and public `workers.dev`, `vercel.app` or `pages.dev` hostnames.
 - `NOVA_CORE_ACCESS_CLIENT_ID`: Cloudflare Access service-token client ID.
 - `NOVA_CORE_ACCESS_CLIENT_SECRET`: Cloudflare Access service-token secret.
 
