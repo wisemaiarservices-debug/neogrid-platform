@@ -121,6 +121,9 @@ class NovaGridIngestionTests(unittest.TestCase):
             "https://other.example.com/api/v1/observations",
             "https://ingest.example.com:8443/api/v1/observations",
             "https://nova-core.workers.dev/api/v1/observations",
+            "https://preview.vercel.app/api/v1/observations",
+            "https://core.pages.dev/api/v1/observations",
+            "https://ingest.example.com.vercel.app/api/v1/observations",
         ):
             with self.subTest(endpoint=endpoint), self.assertRaises(NovaCoreIngestionError):
                 submit_observation(self.payload, environ=dict(self.env, NOVA_CORE_INGESTION_URL=endpoint),

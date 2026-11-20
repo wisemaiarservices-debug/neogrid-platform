@@ -140,8 +140,10 @@ def _configuration(environ: dict[str, str]) -> tuple[str, int, str, str, str]:
         or parsed.path != "/api/v1/observations"
         or parsed.hostname.lower() != allowed_host
         or port != 443
-        or allowed_host.endswith(".workers.dev")
-        or allowed_host.endswith(".workers.dev.pub")
+        or any(
+            allowed_host == suffix[1:] or allowed_host.endswith(suffix)
+            for suffix in (".workers.dev", ".workers.dev.pub", ".vercel.app", ".pages.dev")
+        )
     ):
         raise NovaCoreIngestionError("nova_core_ingestion_endpoint_invalid")
     return parsed.hostname, port, parsed.path, client_id, client_secret
