@@ -118,9 +118,10 @@ def _configuration(environ: dict[str, str]) -> tuple[str, int, str, str, str]:
     if environ.get("NOVA_CORE_INGESTION_ENABLED", "").strip().lower() != "true":
         raise NovaCoreIngestionError("nova_core_ingestion_disabled")
     endpoint = environ.get("NOVA_CORE_INGESTION_URL", "").strip()
+    allowed_host = environ.get("NOVA_CORE_INGESTION_ALLOWED_HOST", "").strip().lower()
     client_id = environ.get("NOVA_CORE_ACCESS_CLIENT_ID", "")
     client_secret = environ.get("NOVA_CORE_ACCESS_CLIENT_SECRET", "")
-    if not endpoint or not client_id or not client_secret:
+    if not endpoint or not allowed_host or not client_id or not client_secret:
         raise NovaCoreIngestionError("nova_core_ingestion_not_configured")
     if any(char in client_id + client_secret for char in "\r\n"):
         raise NovaCoreIngestionError("nova_core_ingestion_credentials_invalid")
@@ -137,6 +138,10 @@ def _configuration(environ: dict[str, str]) -> tuple[str, int, str, str, str]:
         or parsed.query
         or parsed.fragment
         or parsed.path != "/api/v1/observations"
+        or parsed.hostname.lower() != allowed_host
+        or port != 443
+        or allowed_host.endswith(".workers.dev")
+        or allowed_host.endswith(".workers.dev.pub")
     ):
         raise NovaCoreIngestionError("nova_core_ingestion_endpoint_invalid")
     return parsed.hostname, port, parsed.path, client_id, client_secret
