@@ -46,6 +46,7 @@ class NovaGridIngestionTests(unittest.TestCase):
         self.env = {
             "NOVA_CORE_INGESTION_ENABLED": "true",
             "NOVA_CORE_INGESTION_URL": "https://ingest.example.com/api/v1/observations",
+            "NOVA_CORE_INGESTION_ALLOWED_HOST": "ingest.example.com",
             "NOVA_CORE_ACCESS_CLIENT_ID": "grid-client-id",
             "NOVA_CORE_ACCESS_CLIENT_SECRET": "grid-client-secret",
         }
@@ -117,6 +118,9 @@ class NovaGridIngestionTests(unittest.TestCase):
             "https://nova-core.example/other",
             "https://nova-core.example/api/v1/observations?x=1",
             "https://nova-core.example:99999/api/v1/observations",
+            "https://other.example.com/api/v1/observations",
+            "https://ingest.example.com:8443/api/v1/observations",
+            "https://nova-core.workers.dev/api/v1/observations",
         ):
             with self.subTest(endpoint=endpoint), self.assertRaises(NovaCoreIngestionError):
                 submit_observation(self.payload, environ=dict(self.env, NOVA_CORE_INGESTION_URL=endpoint),
